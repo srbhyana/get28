@@ -1290,7 +1290,8 @@ function viewBells(){
       <div class="row"><button class="btn" id="copySub" style="width:100%">Copy token</button></div></div>`:''}
   <div class="fine" style="margin-top:14px"><b>For the phone.</b> Import <b>the-bells.ics</b> once. iOS fires the same thirteen alerts natively, every day until 31 August. Nothing open. No battery cost.</div>
   <div class="gap"></div><h2>${ic('note')} Data</h2>
-  <div class="row"><button class="btn g" id="expBtn" style="flex:1">Export</button><button class="btn g" id="copyBtn" style="flex:1">Copy</button></div>
+  <div class="row"><button class="btn g" id="expBtn" style="flex:1">Export &amp; send</button><button class="btn g" id="copyBtn" style="flex:1">Copy</button></div>
+  <div class="fine">Export opens the share sheet &mdash; put it in Drive, or mail it to yourself. A backup living on this phone is not a backup. Restore by picking the file below.</div>
   <div class="row"><input type="file" id="impFile" accept=".json" style="font-size:12px"></div>
   <div class="row"><button class="btn r" id="wipeBtn" style="flex:1">Wipe everything</button></div>
   <div class="foot">Tomorrow starts at 10:00.</div>`;
@@ -1667,9 +1668,27 @@ document.addEventListener('click',async e=>{
     if(r!=='ok'&&r!=='ok-legacy') toast({tag:'OS notification failed',l:r,i:'bell'});
     return;
   }
-  if(b.id==='expBtn'){const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));
-    a.download='35-backup-'+TODAY+'.json';a.click();return;}
+  if(b.id==='expBtn'){
+    const name='35-backup-'+TODAY+'.json';
+    const json=JSON.stringify(S);
+    /* android: hand it to the share sheet so it can go to drive or gmail,
+       instead of rotting in the Downloads folder of the phone we are
+       backing up in the first place. */
+    try{
+      const file=new File([json],name,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:name,
+          text:'Thirty-five — day '+N+' backup'});
+        toast({tag:'Exported',l:'Sent. Keep it somewhere that is not this phone.',i:'note'});
+        return;
+      }
+    }catch(e){ if(e&&e.name==='AbortError') return; }
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));
+    a.download=name;a.click();
+    toast({tag:'Exported',l:'Saved to Downloads. Move it off this phone.',i:'note'});
+    return;
+  }
   if(b.id==='copyBtn'){const x=JSON.stringify(S);
     if(navigator.clipboard)navigator.clipboard.writeText(x).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1400);});
     else prompt('Copy:',x);return;}
