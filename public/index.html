@@ -1714,6 +1714,14 @@ document.addEventListener('input',e=>{
   if(el.id==='noteIn'){t.note=el.value;save();}
 });
 
+/* ask android to treat this as persistent, not cache it can evict.
+   installed PWAs are usually granted it outright. costs nothing, asks nothing. */
+(async()=>{try{
+  if(navigator.storage&&navigator.storage.persist){
+    if(!(await navigator.storage.persisted())) await navigator.storage.persist();
+  }
+}catch(e){}})();
+
 render();
 bellTick();
 if(!S.opened) coldOpen();
