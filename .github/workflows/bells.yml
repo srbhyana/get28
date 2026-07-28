@@ -1,0 +1,14 @@
+# Rings the bells without any third-party account.
+# Repo → Settings → Secrets and variables → Actions → New repository secret:
+#   TICK_URL = https://YOUR-APP.vercel.app/api/tick?key=YOUR_TICK_KEY
+name: bells
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # every 5 minutes, UTC
+  workflow_dispatch:         # lets you fire one manually to test
+jobs:
+  ring:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping the endpoint
+        run: curl -sS --max-time 20 "${{ secrets.TICK_URL }}" || true
