@@ -515,7 +515,7 @@ const PLAN={
   {n:'Romanian Deadlift',p:'4 × 8',s:4,cue:'Hinge. Bar on the thighs.'},
   {n:'Walking Lunge',p:'3 × 10 / leg',s:3},
   {n:'Standing Calf Raise',p:'4 × 15',s:4},
-  {n:'Hanging Leg Raise',p:'3 × 12',s:3}]},
+  {n:'Hanging Leg Raise',p:'3 × 12',s:3,chk:1}]},
 2:{slug:'Pull',cardio:5,ex:[
   {n:'Pull-Up or Pulldown',p:'4 × 6–8',s:4,cue:'Elbows to ribs. No leaning back.'},
   {n:'Chest Supported Row',p:'4 × 8–10',s:4,cue:'Two-second squeeze at the top.'},
@@ -537,7 +537,7 @@ const PLAN={
   {n:'Bulgarian Split Squat',p:'3 × 8 / leg',s:3},
   {n:'Hamstring Curl',p:'3 × 10',s:3},
   {n:'Cable Pull-Through',p:'3 × 12',s:3},
-  {n:'Plank',p:'3 × 45s',s:3}]},
+  {n:'Plank',p:'3 × 45s',s:3,chk:1}]},
 5:{slug:'Upper Width',cardio:5,ex:[
   {n:'Wide Lat Pulldown',p:'4 × 8–10',s:4,cue:'Drive the elbows down. Not back.'},
   {n:'Incline Dumbbell Press',p:'4 × 8',s:4},
@@ -546,33 +546,33 @@ const PLAN={
   {n:'Face Pull',p:'3 × 15',s:3},
   {n:'Incline Dumbbell Curl',p:'3 × 10',s:3}]},
 6:{slug:'Road',cardio:10,ex:[
-  {n:'Conversational Run',p:'10 km',s:4,cue:'If you cannot talk, slow down.'},
-  {n:'Full Mobility',p:'15 min',s:1},
-  {n:'Nothing under a bar',p:'—',s:1,opt:1}]},
+  {n:'Conversational Run',p:'10 km',s:4,chk:1,cue:'If you cannot talk, slow down.'},
+  {n:'Full Mobility',p:'15 min',s:1,chk:1},
+  {n:'Nothing under a bar',p:'—',s:1,chk:1,opt:1}]},
 0:{slug:'Rest',cardio:0,ex:[
-  {n:'Walk',p:'30 min',s:1},
-  {n:'Full Mobility',p:'15 min',s:1},
-  {n:'Sleep',p:'Eight hours',s:1},
-  {n:'Nothing else',p:'—',s:1,opt:1}]}};
+  {n:'Walk',p:'30 min',s:1,chk:1},
+  {n:'Full Mobility',p:'15 min',s:1,chk:1},
+  {n:'Sleep',p:'Eight hours',s:1,chk:1},
+  {n:'Nothing else',p:'—',s:1,chk:1,opt:1}]}};
 /* the on-ramp. no bar until the first. */
 const RAMP={
 1:{slug:'Run',cardio:5,ramp:1,note:'Reading starts. Sugar stops. Nothing else today.',ex:[
-  {n:'Easy Run',p:'5 km',s:2,cue:'No pace target. Finish it. That is the whole brief.'},
-  {n:'Full Mobility',p:'15 min',s:1},
-  {n:'Read',p:'1 page',s:1}]},
+  {n:'Easy Run',p:'5 km',s:2,chk:1,cue:'No pace target. Finish it. That is the whole brief.'},
+  {n:'Full Mobility',p:'15 min',s:1,chk:1},
+  {n:'Read',p:'1 page',s:1,chk:1}]},
 2:{slug:'Run',cardio:5,ramp:1,note:'Yesterday was a fluke until today proves it.',ex:[
-  {n:'Easy Run',p:'5 km',s:2,cue:'Same route. Same distance. Slower is fine.'},
-  {n:'Full Mobility',p:'15 min',s:1},
-  {n:'Read',p:'2 pages',s:1}]},
+  {n:'Easy Run',p:'5 km',s:2,chk:1,cue:'Same route. Same distance. Slower is fine.'},
+  {n:'Full Mobility',p:'15 min',s:1,chk:1},
+  {n:'Read',p:'2 pages',s:1,chk:1}]},
 3:{slug:'Rest',cardio:0,ramp:1,note:'Rest is programmed. Not earned.',ex:[
-  {n:'Walk',p:'30 min',s:1},
-  {n:'Full Mobility',p:'15 min',s:1},
-  {n:'Read',p:'3 pages',s:1},
-  {n:'Nothing else',p:'—',s:1,opt:1}]},
+  {n:'Walk',p:'30 min',s:1,chk:1},
+  {n:'Full Mobility',p:'15 min',s:1,chk:1},
+  {n:'Read',p:'3 pages',s:1,chk:1},
+  {n:'Nothing else',p:'—',s:1,chk:1,opt:1}]},
 4:{slug:'Run',cardio:5,ramp:1,note:'Diet starts today. 1,900. 200 protein.',ex:[
-  {n:'Easy Run',p:'5 km',s:2,cue:'Last run before the bar. Keep it easy.'},
-  {n:'Full Mobility',p:'15 min',s:1},
-  {n:'Read',p:'4 pages',s:1}]},
+  {n:'Easy Run',p:'5 km',s:2,chk:1,cue:'Last run before the bar. Keep it easy.'},
+  {n:'Full Mobility',p:'15 min',s:1,chk:1},
+  {n:'Read',p:'4 pages',s:1,chk:1}]},
 5:{slug:'Lower A',cardio:0,first:1,note:'The grind begins.',ex:PLAN[1].ex}};
 function plan(k){
   const n=dayNum(k);
@@ -820,7 +820,7 @@ function masterArt(clear){
       <stop offset="0" stop-color="#42341A"/><stop offset=".4" stop-color="#1A1610"/>
       <stop offset="1" stop-color="#0C0B0A"/></linearGradient>
   </defs>
-  ${clear?'':'<rect width="240" height="210" fill="#0B0B0B"/>'}
+  <rect width="240" height="210" fill="#0B0B0B" opacity="${clear?'.62':'1'}"/>
   <ellipse cx="66" cy="38" rx="176" ry="158" fill="url(#mr)" class="breathe"/>
   <path d="M-16 210 C-2 186 26 170 74 162 L100 152 h40 l26 10 c48 8 76 24 90 48 Z" fill="#0E0D0B"/>
   <path d="M-16 210 C-2 186 26 170 74 162 L100 152" fill="none" stroke="#D4AF37" stroke-width="1.6" opacity=".55"/>
@@ -960,7 +960,7 @@ function viewToday(){
   return `<div class="phwrap" style="height:286px;margin:0 -26px">
     <div class="ph" style="background-image:url(${PHOTOS[BLOCKPIC[nb.k]||'rooftop']})"></div>
     <div class="scrim"></div>
-    <div class="bandcap"><span class="lab b">${esc(nb.l?nb.l.replace('.',''):(nb.k==='gym'?p.slug:'Now'))}</span></div></div>
+    <div class="bandcap"><span class="eyebrow b">${esc(nb.l?nb.l.replace('.',''):(nb.k==='gym'?p.slug:'Now'))}</span></div></div>
   <header style="padding-top:6px">
     <div class="topbar"><span class="eyebrow">${DOW[d.getDay()]} · ${d.getDate()} ${MON[d.getMonth()]}</span>
       <button class="iconbtn" data-t="bells">${ic('bell')}</button></div>
@@ -1023,7 +1023,7 @@ function viewWork(){
   let h=`<div class="phwrap" style="height:230px;margin:calc(-30px - var(--st)) -26px 0">
       <div class="ph" style="background-image:url(${PHOTOS[ON_GYM?'gym':'bag']})"></div>
       <div class="scrim hard"></div>
-      <div class="bandcap"><span class="lab b">Day ${N}</span>
+      <div class="bandcap"><span class="eyebrow b">Day ${N}</span>
         <div class="big" style="margin-top:4px">${esc(p.slug)}</div></div></div>
     <header style="padding-top:16px"><div class="eyebrow">${done(t)} of ${tot(p)} sets</div>
     ${p.note?`<div class="fine" style="color:var(--brass);margin-top:8px">${esc(p.note)}</div>`:''}</header>`;
@@ -1041,7 +1041,9 @@ function viewWork(){
     h+=`<div class="exb ${full?'done':''}">
       <div class="exhead"><span class="exnum">${i+1}</span><div class="exn">${esc(e.n)}</div><div class="exp">${esc(e.p)}</div></div>
       ${e.cue?`<div class="cue">${ic('note')}<span>${esc(e.cue)}</span></div>`:''}
-      ${e.opt?'':`<div class="setlist">${Array.from({length:e.s},(_,j)=>{
+      ${e.opt?'':e.chk?`<div class="setlist" style="display:flex;gap:8px;padding-top:4px">
+        ${Array.from({length:e.s},(_,j)=>`<button class="mk sm ${arr[j]?'on':''}" data-chk="${i}" data-j="${j}"></button>`).join('')}
+      </div>`:`<div class="setlist">${Array.from({length:e.s},(_,j)=>{
         const s=arr[j], act=ED&&ED.e===i&&ED.j===j;
         return `<div class="setl ${s?'filled':''} ${act?'active':''}" data-ed="${i}" data-j="${j}">
           <span class="i">${j+1}</span>${s?esc(s.w)+' × '+esc(s.r):'— × —'}</div>`+
@@ -1063,6 +1065,7 @@ function viewWork(){
     <div class="lrow" style="border-bottom:0"><div style="flex:1"><div class="ln"><span class="gl">${ic('book')}</span>Read</div>
       <div class="ls">${Math.max(1,Math.min(N,TOTAL))} pages today</div></div>
       <button class="mk sm ${t.read?'on':''}" data-act="read"></button></div></div>`;
+  if(m){
   h+=`<div class="gap"></div><h2>${ic('plate')} ${m.tag} · ${m.kcal} kcal</h2><div class="card">
     <div style="display:flex;gap:30px">
       <div><div class="mid" style="color:var(--brass)">${m.p}</div><div class="eyebrow" style="margin-top:6px">Protein</div></div>
@@ -1078,8 +1081,14 @@ function viewWork(){
       <div class="ls">${t.water} of 8 · 500 ml each</div></div>
       <div style="display:flex;gap:6px">${Array.from({length:8},(_,j)=>`<button class="mk sm ${j<t.water?'on':''}" data-water="${j}" style="width:14px;height:14px;border-radius:3px"></button>`).join('')}</div></div>
     ${IS_REFEED?'<div class="fine" style="color:var(--brass-dim)"><b>Refeed.</b> Carbs to 250. Then back down.</div>':''}</div>`;
-  h+=`<div class="gap"></div><h2>${ic('check')} The line</h2><div class="card">
-    ${CLEAN.filter(c=>c.from<=N).map(c=>{
+  } else {
+    h+=`<div class="gap"></div><h2>${ic('lock')} The diet</h2><div class="card">
+      <div class="said">Starts 31 July.<br><em>Day four.</em></div>
+      <div class="fine">Until then: run, read, no sugar. Do not add anything else. Three things you can actually hold.</div></div>`;
+  }
+  const cl=CLEAN.filter(c=>c.from<=N);
+  if(cl.length) h+=`<div class="gap"></div><h2>${ic('check')} The line</h2><div class="card">
+    ${cl.map(c=>{
       const v=t.clean[c.id],st=streak(c.id);
       return `<div class="lrow"><div style="flex:1"><div class="ln"><span class="gl">${ic(c.i)}</span>${esc(c.n)}</div>
         <div class="ls" style="color:${st>0?'var(--brass-dim)':'var(--ivory-3)'}">${st} day${st===1?'':'s'}</div></div>
@@ -1106,7 +1115,7 @@ function viewHabits(){
   let h=`<div class="phwrap" style="height:230px;margin:calc(-30px - var(--st)) -26px 0">
       <div class="ph" style="background-image:url(${PHOTOS.bag})"></div>
       <div class="scrim hard"></div>
-      <div class="bandcap"><span class="lab b">Twelve rungs</span>
+      <div class="bandcap"><span class="eyebrow b">Twelve rungs</span>
         <div class="big" style="margin-top:4px">Habits.</div></div></div>
     <header style="padding-top:16px"><div class="eyebrow">Consistency is freedom</div></header>
     <div class="gap"></div><div class="gridwrap"><table class="hgrid"><thead><tr><th></th>
@@ -1153,7 +1162,7 @@ function viewProgress(){
   let h=`<div class="phwrap" style="height:250px;margin:calc(-30px - var(--st)) -26px 0">
       <div class="ph" style="background-image:url(${PHOTOS.mirror});background-position:center 30%"></div>
       <div class="scrim hard"></div>
-      <div class="bandcap"><span class="lab b">The mirror does not negotiate</span></div></div>
+      <div class="bandcap"><span class="eyebrow b">The mirror does not negotiate</span></div></div>
     <header style="padding-top:16px"><div class="eyebrow b">${ic('chart')} Weight</div>
     <div class="huge" id="pNum" style="margin-top:14px">0.0</div>
     <div class="delta ${lost<0?'up':''}">${lost>=0?'−':'+'}${Math.abs(lost).toFixed(1)} kg · ${Math.max(0,w-W1).toFixed(1)} to go</div></header>
@@ -1231,7 +1240,7 @@ let hold=null;
 function openPanic(){
   const o=$('#over');
   o.innerHTML=`<div class="masterband">
-      <div class="ph" style="background-image:url(${PHOTOS.bedroom});opacity:.5"></div>
+      <div class="ph" style="background-image:url(${PHOTOS.bedroom});opacity:.85"></div>
       ${masterArt(1)}<div class="cap eyebrow b">${ic('stop')} Which one</div></div>
     <div class="grid">${PROMPTS.map((p,i)=>`<button data-p="${i}"><span class="gl">${ic(p.i,'lg')}</span>${esc(p.label)}</button>`).join('')}</div>
     <button class="esc" data-close="1">Nothing. Go back.</button>`;
@@ -1404,6 +1413,12 @@ document.addEventListener('click',async e=>{
     return;
   }
   if(b.dataset.setclr&&ED){if(t.sets[ED.e])t.sets[ED.e][ED.j]=null;ED=null;save();render();return;}
+  if(b.dataset.chk!==undefined){const i=b.dataset.chk,j=+b.dataset.j;
+    t.sets[i]=t.sets[i]||[]; t.sets[i][j]=t.sets[i][j]?null:{w:0,r:0};
+    if(!b.classList.contains('on')){const rp=document.createElement('span');rp.className='rip';b.appendChild(rp);setTimeout(()=>rp.remove(),900);}
+    click();save();
+    if(!wasFull&&done(t)>=tot(p)&&(!p.cardio||t.cardio))flash('Logged.');
+    setTimeout(render,120);return;}
   if(b.dataset.ed!==undefined){const i=+b.dataset.ed,j=+b.dataset.j;
     ED=(ED&&ED.e===i&&ED.j===j)?null:{e:i,j:j};render();return;}
   if(b.dataset.act){
