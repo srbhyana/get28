@@ -1506,12 +1506,27 @@ async function armPush(){
   }catch(e){ return {err:String((e&&e.message)||e)}; }
 }
 
+async function osNotify(title,body,tag,hard){
+  if(!('Notification' in window)||Notification.permission!=='granted') return 'no permission';
+  /* Android Chrome throws on `new Notification()` — it must go via the
+     service worker registration. Desktop accepts either. */
+  try{
+    if('serviceWorker' in navigator){
+      const reg=await navigator.serviceWorker.getRegistration()
+             || await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      await reg.showNotification(title,{body:body,tag:tag,renotify:true,
+        requireInteraction:!!hard,vibrate:[40,80,40]});
+      return 'ok';
+    }
+  }catch(e){ /* fall through */ }
+  try{ new Notification(title,{body:body,tag:tag}); return 'ok-legacy'; }
+  catch(e){ return 'failed: '+((e&&e.message)||e); }
+}
 function fire(b){
   const line=masterLine(b.bank);
   toast({tag:b.ttl,l:line,s:hm(mins()),i:b.i});
-  if(S.notif&&('Notification' in window)&&Notification.permission==='granted'){
-    try{new Notification(b.ttl,{body:line,tag:b.k,requireInteraction:!!b.hard});}catch(e){}
-  }
+  osNotify(b.ttl,line,b.k,b.hard);
 }
 function bellTick(){
   if(refreshDate()) render();
@@ -1645,7 +1660,13 @@ document.addEventListener('click',async e=>{
     } else { window.prompt('Copy this into Vercel as PUSH_SUB:',S.sub); }
     return;
   }
-  if(b.id==='testBtn'){fire(BELLS[7]);return;}
+  if(b.id==='testBtn'){
+    const r=await osNotify('Shoes. Door.',
+      'If you can see this outside Chrome, on your lock screen, the OS layer works.',
+      'test',false);
+    if(r!=='ok'&&r!=='ok-legacy') toast({tag:'OS notification failed',l:r,i:'bell'});
+    return;
+  }
   if(b.id==='expBtn'){const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));
     a.download='35-backup-'+TODAY+'.json';a.click();return;}

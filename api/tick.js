@@ -143,6 +143,28 @@ module.exports = async (req, res) => {
 
   let title, body, tag, hard = false;
 
+  /* &test=1 forces an immediate send, so you can prove the whole chain
+     (vercel -> google's push service -> your phone) without waiting. */
+  if (req.query.test) {
+    const seed = hash('test' + Date.now());
+    const kind = KINDS[seed % KINDS.length];
+    webpush.setVapidDetails('mailto:srbhyana7@gmail.com',
+      process.env.VAPID_PUBLIC, process.env.VAPID_PRIVATE);
+    try {
+      await webpush.sendNotification(JSON.parse(process.env.PUSH_SUB),
+        JSON.stringify({ title: 'Test · ' + kind,
+          body: pickFrom(VOICE[kind].lines, seed >> 5), tag: 'test', hard: false }));
+      return res.status(200).json({ ok: true, test: true, kind,
+        note: 'sent. if nothing arrives, the subscription is stale — re-subscribe on the phone.' });
+    } catch (e) {
+      return res.status(200).json({ ok: false, test: true,
+        code: e && e.statusCode, error: String(e && e.message),
+        hint: (e && e.statusCode === 410) ? 'subscription expired — turn push off and on again in the app'
+            : (e && e.statusCode === 403) ? 'VAPID keys do not match the subscription — re-subscribe after fixing them'
+            : 'check VAPID_PUBLIC / VAPID_PRIVATE / PUSH_SUB' });
+    }
+  }
+
   const anchor = useAnchors && ANCHORS.find(a => {
     const [ah, am] = a.t.split(':').map(Number);
     return ah * 60 + am === slot;
