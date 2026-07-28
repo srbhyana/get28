@@ -1269,9 +1269,9 @@ function chart(){
 function viewBells(){
   const perm=('Notification' in window)?Notification.permission:'none';
   const fired=S.fired[TODAY]||[], m=mins(), nb=nowBlock();
-  let h=`<header><div class="eyebrow b">${ic('bell')} ${S.notif&&perm==='granted'?'Armed':'Silent'}</div>
+  let h=`<header><div class="eyebrow b">${ic('bell')} ${S.sub?'Push armed':perm==='granted'?'In-app only':'Silent'}</div>
     <div class="big" style="margin-top:12px">Thirteen bells.</div></header>
-    <div class="row"><button class="btn ${S.notif&&perm==='granted'?'g':''}" id="armBtn" style="flex:1">${S.notif&&perm==='granted'?'Disarm':ic('bell')+' Arm the bells'}</button>
+    <div class="row"><button class="btn ${S.sub?'g':''}" id="armBtn" style="flex:1">${S.sub?'Disarm push':ic('bell')+' Turn on push'}</button>
     <button class="btn g" id="testBtn">Test</button></div><div class="gap"></div>`;
   h+=`<h2>${ic('clock')} The shape of the day</h2>`;
   SHAPE.forEach(b=>{
@@ -1477,6 +1477,35 @@ function finish(){
 }
 
 /* ── bells ───────────────────────────────── */
+/* ── real push · the Web Push standard, same as any website.
+      no email involved. needs https, so it only works on the vercel url. ── */
+const VAPID_PUBLIC='BGpqqBFvkZESxIS6XmGzGtRMYUmqNfM15dltOakmHGbbSg6UswdC1vfPlcHPzO_fVqGDxSWTKaVKQOFKyGceg9E';
+function b64ToU8(b){
+  const pad='='.repeat((4-b.length%4)%4);
+  const raw=atob((b+pad).replace(/-/g,'+').replace(/_/g,'/'));
+  const u=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++) u[i]=raw.charCodeAt(i);
+  return u;
+}
+async function armPush(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))
+    return {err:'This browser cannot do background push.'};
+  if(location.protocol!=='https:'&&location.hostname!=='localhost')
+    return {err:'Needs https. Open the Vercel link, not a local file.'};
+  let perm=Notification.permission;
+  if(perm!=='granted') perm=await Notification.requestPermission();
+  if(perm!=='granted') return {err:'Blocked. Turn notifications on for this site in Chrome.'};
+  try{
+    const reg=await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub) sub=await reg.pushManager.subscribe({
+      userVisibleOnly:true, applicationServerKey:b64ToU8(VAPID_PUBLIC)});
+    S.sub=JSON.stringify(sub); S.notif=true; save();
+    return {sub:S.sub};
+  }catch(e){ return {err:String((e&&e.message)||e)}; }
+}
+
 function fire(b){
   const line=masterLine(b.bank);
   toast({tag:b.ttl,l:line,s:hm(mins()),i:b.i});
@@ -1596,11 +1625,24 @@ document.addEventListener('click',async e=>{
   }
   if(b.dataset.del){S.custom=S.custom.filter(c=>c.id!==b.dataset.del);save();render();return;}
   if(b.id==='armBtn'){
-    if(!('Notification' in window)){b.textContent='Not supported';return;}
-    if(S.notif&&Notification.permission==='granted'){S.notif=false;save();render();return;}
-    const pm=await Notification.requestPermission();
-    if(pm==='granted'){S.notif=true;save();toast({tag:'Armed',l:'Thirteen bells.',s:'They ring while this page is open.',i:'bell'});render();}
-    else{S.notif=false;save();toast({tag:'Blocked',l:'System alerts are off.',s:'The in-app cards still fire.',i:'bell'});render();}
+    if(S.sub){
+      S.sub=null; S.notif=false; save();
+      try{const r=await navigator.serviceWorker.getRegistration();
+          const sub=r&&await r.pushManager.getSubscription(); if(sub) await sub.unsubscribe();}catch(e){}
+      toast({tag:'Disarmed',l:'Push is off. In-app cards still fire.',i:'bell'}); render(); return;
+    }
+    b.textContent='Working...';
+    const r=await armPush();
+    if(r.err){ toast({tag:'Not armed',l:r.err,i:'bell'}); render(); return; }
+    toast({tag:'Subscribed',l:'Copy the token below into Vercel as PUSH_SUB, then redeploy.',s:'One time only',i:'bell'});
+    render(); return;
+  }
+  if(b.id==='copySub'){
+    if(!S.sub) return;
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(S.sub).then(()=>{b.textContent='Copied';
+        setTimeout(()=>b.textContent='Copy token',1600);});
+    } else { window.prompt('Copy this into Vercel as PUSH_SUB:',S.sub); }
     return;
   }
   if(b.id==='testBtn'){fire(BELLS[7]);return;}
